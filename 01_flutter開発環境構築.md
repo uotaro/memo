@@ -74,11 +74,15 @@ You should add the fvm version directory ".fvm/" to .gitignore.
 
 ##### 5. VSCode 上の flutter 拡張機能設定
 VSCode 上の flutter 拡張機能設定のため、プロジェクトフォルダ直下にある .vscode フォルダ内に `settings.json` を作成する。  
-作成した settings.json に、下記を記述する。
+作成した settings.json に、下記を記述する。  
+`editor.formatOnSave ` 設定は、**勝手に dart の改行調整を無効化するため**の設定。自動でフォーマットして欲しい場合は true 設定にしてください。
 
 ```python
 {
-  "dart.flutterSdkPath": ".fvm/versions/3.36.0"
+  "dart.flutterSdkPath": ".fvm/versions/3.36.0",
+  "[dart]": {
+    "editor.formatOnSave": false
+  }
 }
 ```
 
