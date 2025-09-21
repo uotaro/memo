@@ -1,6 +1,7 @@
 # flutter 開発メモ
 
 1. [プロジェクト作成](#create_project)
+2. [パッケージの導入方法](#get_packages)
 
 ---
 
@@ -48,6 +49,9 @@ flutter create ⚪︎⚪︎⚪︎⚪︎⚪︎　# ⚪︎⚪︎⚪︎⚪︎はプ
 ##### 4. VSCode 上のターミナルにて下記コマンドを実行して、使いたい flutter のバージョンを指定する。
 
 ```bash
+fvn use X.XX.X # X.XX.Xは使いたいバージョン
+
+# 例
 fvn use 3.35.3
 ```
 
@@ -80,3 +84,50 @@ VSCode 上の flutter 拡張機能設定のため、プロジェクトフォル�
 
 これにて flutter プロジェクト作成作業完了！
 
+
+---
+
+<div id="get_packages"></div>
+
+# 1. パッケージの導入方法
+
+##### 1.　パッケージの追加
+還俗プロジェクトフォルダ内で、 `fvn use X.XX.X` コマンドにて使う flutter バージョンを指定した後、下記コマンドでパッケージを追加する。
+
+```bash
+flutter pub add ⚪︎⚪︎⚪︎⚪︎ # ⚪︎⚪︎⚪︎⚪︎は使いたいパッケージ名
+
+# 例
+pub add go_router
+```
+
+これにて、プロジェクトフォルダ下直下にある pubspec.yaml ファイルに以下のように自動追記される。
+
+```python
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  go_router: ^16.2.2 # ←追加されてる
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+```
+
+`dev_dependencies` セクションに追加したい場合（リリースビルドに含めたくない場合）は以下のように `--dev` オプションを付与する。
+
+```bash
+flutter pub add --dev ⚪︎⚪︎⚪︎⚪︎ # ⚪︎⚪︎⚪︎⚪︎は使いたいパッケージ名
+
+# 例
+pub add --dev build_runner
+```
+
+##### 2. パッケージの導入
+手順１で pubspec.yaml にパッケージ追加したら、下記コマンドを実行してパッケージを導入する。
+
+```bash
+flutter pub get
+```
