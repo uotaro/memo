@@ -48,8 +48,25 @@ flutter create ⚪︎⚪︎⚪︎⚪︎⚪︎　# ⚪︎⚪︎⚪︎⚪︎はプ
 ##### 4. VSCode 上のターミナルにて下記コマンドを実行して、使いたい flutter のバージョンを指定する。
 
 ```bash
-fvn use 3.36.0 --force
+fvn use 3.35.3
 ```
+
+コマンドを実行すると以下のように聞かれるので `y` と入力する。  
+Git登録除外設定ファイルである .gitignore ファイルに .fvm フォルダを追記する？って内容の問い。
+
+```bash
+You should add the fvm version directory ".fvm/" to .gitignore.
+✔ Would you like to do that now? - yes/no
+```
+
+以下のように表示されればOK。
+
+<div style="width=50%;">
+
+![](./images/01/fvm_use_01png.png)
+
+</div>
+
 
 ##### 5. VSCode 上の flutter 拡張機能設定
 VSCode 上の flutter 拡張機能設定のため、プロジェクトフォルダ直下にある .vscode フォルダ内に `settings.json` を作成する。  
