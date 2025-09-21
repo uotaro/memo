@@ -2,6 +2,7 @@
 
 1. [プロジェクト作成](#create_project)
 2. [パッケージの導入方法](#get_packages)
+3. [ローカライズ方法](#localization)
 
 ---
 
@@ -135,4 +136,145 @@ flutter pub add --dev build_runner
 
 ```bash
 flutter pub get
+```
+
+---
+
+<div id="localization"></div>
+
+# 3. ローカライズ方法
+
+##### パッケージを導入
+プロジェクトディレクトリ直下で下記コマンドを実行して、ローカライズに必要なパッケージを導入する。
+
+```sh
+flutter pub add flutter_localizations --sdk=flutter
+flutter pub add intl:any
+```
+
+##### pubspec.yaml 設定
+プロジェクトディレクトリ直下にある `pubspec.yaml` を開き、以下のように追記する。  
+これは、コードジェネレータの設定のために必要なもの。
+
+```yaml
+# 省略
+flutter:
+  uses-material-design: true
+  generate: true # ←追記
+```
+
+`pubspec.yaml` 追記後、生成されたコードをプロジェクトから参照できるように、以下のコマンドを実行する。
+
+```sh
+flutter pub get
+```
+
+##### ローカライズの構成ファイルを作成
+プロジェクトディレクトリ直下に `l10n.yaml` という名前のファイルを作成する（文頭の文字は小文字のエル。２＆３番目は数字の10）
+
+```yaml
+arb-dir: lib/l10n
+template-arb-file: intl_ja.arb
+output-class: L10n
+nullable-getter: false
+```
+
+##### arb ファイルを作成する
+プロジェクトディレクトリ/lib ディレクトリ下に `l10n` ディレクトリを作成する。  
+作成した `プロジェクトディレクトリ/lib ディレクトリ/l10n` ディレクトリ下に `app_ja.arb` ファイルを作成し、以下の例のように日本語定義ファイルを作成する。  
+任意のキー値に対し、表示させたい日本語を定義していく。
+
+```json
+{
+    "@@locale": "ja",
+    "startScreenTitle": "Edit Snapアプリ",
+    "@startScreenTitle": {
+        "description": "アプリのタイトル"
+    },
+    "helloWorldOn": "こんにちは！\n今日は{date}です。",
+    "@helloWorldOn": {
+        "description": "挨拶と日付を表示します。",
+        "placeholders": {
+            "date": {
+                "type": "DateTime",
+                "format": "MEd"
+            }
+        }
+    },
+    "start": "開始する",
+    "@start": {
+        "description": "開始ボタンのラベル"
+    }
+}
+```
+
+##### コードジェネレイターの実行
+arb ファイルを作成したら、下記コマンドでコードジェネレイターを実行する。
+
+```sh
+flutter gen-l10n
+```
+
+##### ローカライズされたメッセージを適用
+コードジェネレイターを実行したら、生成されたメッセージを以下の例(main.dart)のようにコードに反映させる。
+
+```dart
+import 'package:edit_snap/l10n/app_localizations.dart'; // 生成されたコードをインポート
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      localizationsDelegates: L10n.localizationsDelegates, // 対応言語の(今回は日本語のみ)の翻訳データを渡す
+      supportedLocales: L10n.supportedLocales,             // 対応言語のリストを渡す
+      title: 'Edit Snap',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
+      ),
+      home: StartScreen(),
+    );
+  }
+}
+
+// StartScreen クラス
+class StartScreen extends StatelessWidget {
+  const StartScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context); // L10nクラスのインスタンスを取得
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(l10n.startScreenTitle), // 対応するメッセージを生成コードから取得
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              l10n.helloWorldOn(DateTime.now()), // 対応するメッセージを生成コードから取得
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            ElevatedButton(
+              child: Text(l10n.start), // 対応するメッセージを生成コードから取得
+              onPressed: () {
+                // ボタンが押されたときの処理
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 ```
