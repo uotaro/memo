@@ -278,3 +278,26 @@ class StartScreen extends StatelessWidget {
   }
 }
 ```
+
+##### App Store での表示言語を設定する
+iOS ネイティブの対応言語を設定する。  
+これは App Store に表示されるアプリの対応言語に影響する。  
+`ios/Runner/Info.plist` を開き、`CFBundleLocalizations` キーの下に `ja` を追加する。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 省略 -->
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>ja</string>
+    </array>
+    <!-- 省略 -->
+</dict>
+</plist>
+```
+
+これで、ローカライズ作業完了！  
+サンプルは日本語のみ対応しているが、必要に合わせて言語追加すること
