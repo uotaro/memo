@@ -1,0 +1,131 @@
+
+
+
+body {
+  font-family: "游ゴシック体";
+  font-size: 11pt;
+  line-height: 1.8;
+  background-color: #f9f9f9;
+  color: #111;
+}
+
+h1 h2 h3 h4 h5 h6 {
+  font-family: "游ゴシック体";
+  text-decoration: none;
+  font-weight: bold;
+}
+
+h1 {
+  /* 上 | 右 | 下 | 左 */
+  margin: 1.6em 0 0.6em 0;
+  padding-bottom: 0.3em;
+  line-height: 1.2;
+  border-bottom: 2px solid #A4CA68;
+  position: relative;
+  padding-left: 18px;
+}
+
+h1:before {
+  background: #A4CA68;
+  content: "";
+  height: 28px;
+  width: 8px;
+  left: 0;
+  position: absolute;
+  top: 3px;
+}
+
+h2 {
+  /* 上 | 右 | 下 | 左 */
+  margin: 1.6em 0 0.6em 0;
+  padding-bottom: 0.3em;
+  line-height: 1.2;
+  position: relative;
+  padding-left: 18px;
+}
+
+h2:before {
+  background: #A4CA68;
+  content: "";
+  height: 20px;
+  width: 5px;
+  left: 0px;
+  position: absolute;
+  top: 3px;
+}
+
+h3 {
+  /* 上 | 右 | 下 | 左 */
+  margin: 1.6em 0 0.6em 0;
+  font-size: 15pt;
+}
+
+h4 {
+  /* 上 | 右 | 下 | 左 */
+  margin: 1.6em 0 0.6em 0;
+  font-size: 14pt;
+}
+
+h5 {
+  font-size: 13pt;
+}
+
+h6 {
+  font-size: 13pt;
+}
+
+hr {
+  /* 上下 | 左右 */
+  margin: 3.0em 49%;
+  width: 2%;
+}
+
+ol li {
+  padding-left: 1em;
+  text-indent: -1em;
+  margin-bottom: 0.5em;
+}
+
+ul {
+  margin-left: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+ul li {
+  line-height: 1.5;
+  padding: 0.2em 0;
+}
+
+p {
+  text-indent: 1em;
+}
+
+strong {
+  font-weight: bold;
+  color: #890000;
+}
+
+.no-jisage p {
+  text-indent: 0em;
+}
+
+blockquote p {
+  text-indent: 0em;
+}
+
+.img-wrapper {
+  text-align: center;
+}
+
+.img {
+  width: 80%;
+}
+
+.img--border {
+  border: #AAA solid 1px;
+}
+
+.caption {
+  font-size: 7.5pt;
+  line-height: 1.5;
+}
