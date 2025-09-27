@@ -101,14 +101,14 @@ flutter pub add --dev riverpod_generator build_runner custom_lint riverpod_lint
 ```python
 dependencies:
   #【略】
-  flutter_riverpod: ^3.0.0
-  riverpod_annotation: ^3.0.0
+  flutter_riverpod: ^3.0.0　　　# Riverpod の基本機能を提供するパッケージ
+  riverpod_annotation: ^3.0.0  # Provier のコード生成のためのアノテーションを提供
   #【略】
 dev_dependencies:
-  riverpod_generator: ^3.0.0
-  build_runner: ^2.7.1
-  custom_lint: ^0.8.0
-  riverpod_lint: ^3.0.0
+  riverpod_generator: ^3.0.0   # Provier のコードを生成するためのパッケージ
+  build_runner: ^2.7.1         # flutter gen のコード生成パッケージ
+  custom_lint: ^0.8.0          # riverpod_lint 利用のために必要
+  riverpod_lint: ^3.0.0        # Riverpod コード特有の問題を静的解析＆自動修正するパッケージ
 ```
 
 これにて flutter プロジェクト作成作業完了！
