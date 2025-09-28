@@ -4,7 +4,7 @@
 2. [パッケージの導入方法](#get_packages)
 3. [ローカライズ方法](#localization)
 4. [プロジェクト実行方法](#run_project)
-5. [デバッグ方法](#debug)
+5. [デバッグ実行方法](#debug)
 6. [Riverpod の使い方（ver3.0以降）](#riverpod)
 
 ---
@@ -335,7 +335,7 @@ flutter pub get
 
 ```python
 arb-dir: lib/l10n
-template-arb-file: intl_ja.arb
+template-arb-file: app_ja.arb
 output-class: L10n
 nullable-getter: false
 ```
@@ -376,6 +376,11 @@ arb ファイルを編集完了したら、下記コマンドでコードジェ�
 ```sh
 flutter gen-l10n
 ```
+
+上記コマンドを実行すると、lob/l10n/ ディレクトリ下に以下のファイルが生成される。
+
+- app_localizations_ja.dart
+- app_localizations.dart
 
 #### ローカライズされたメッセージを適用
 コードジェネレイターを実行したら、生成されたメッセージを以下の例(main.dart)のようにコードに反映させる。
@@ -423,12 +428,12 @@ class StartScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              l10n.helloWorldOn(DateTime.now()), // 対応するメッセージを生成コードから取得
+              l10n.helloWorldOn(DateTime.now()), // 対応するメッセージを生成コードから取得（Text に const つけないこと！）
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             ElevatedButton(
-              child: Text(l10n.start), // 対応するメッセージを生成コードから取得
+              child: Text(l10n.start), // 対応するメッセージを生成コードから取得（Text に const つけないこと！）
               onPressed: () {
                 // ボタンが押されたときの処理
               },
@@ -543,6 +548,50 @@ flutter run
 
 1. VSCode の左側バーの「実行とデバッグ」ボタンをクリック。
 2. エクスプローラーペインがデバッグペインに変わるので、「実行とデバッグ」ボタンをクリックすればデバッグ開始。
+
+#### デバッグ実行時に引数指定したい場合
+
+1. VSCode の左側バーの「実行とデバッグ」ボタンをクリック。
+2. エクスプローラーペインがデバッグペインに変わるので、「実行とデバッグ」ボタン右横の歯車アイコン（launch.json）をクリックし、`.vscode/launch.json` を開く。
+3. launch.json に `toolArgs` 項目を追加し、指定したい引数を記述する。  
+下記例は、アプリのビルドや実行時に、外部 JSON ファイル（ここでは define/env.json ）から環境変数（定数）を注入している。 
+
+```json
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "hiragana_converter",
+            "request": "launch",
+            "type": "dart",
+            "toolArgs": [
+                "--dart-define-from-file=define/env.json"
+            ]
+        },
+        {
+            "name": "hiragana_converter (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "toolArgs": [
+                "--dart-define-from-file=define/env.json"
+            ]
+        },
+        {
+            "name": "hiragana_converter (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "toolArgs": [
+                "--dart-define-from-file=define/env.json"
+            ]
+        }
+    ]
+}
+```
 
 ---
 
