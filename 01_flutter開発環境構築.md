@@ -144,7 +144,7 @@ void main() {
 
 <div id="about_riverpod"></div>
 
-##### Riverpod とは
+## Riverpod とは
 
 Riverpod は、Flutter アプリで使う 状態管理ライブラリ。  
 「アプリの中でデータをどう持って、どう画面に反映するか」をシンプルかつ安全に扱えるようにしてくれる。  
@@ -167,12 +167,12 @@ Riverpod は、Flutter アプリで使う 状態管理ライブラリ。
   - 非同期処理（API呼び出しなど）も簡単に扱える。
   - loading / data / error の状態をひとまとめにできるので、UI側もスッキリ書ける。
 
-#### デフォルト main.dart を Riverpod 用に書き換えてみよう
+### デフォルト main.dart を Riverpod 用に書き換えてみよう
 デフォルトプログラムを Riverpod 仕様に書き換えると、以下のようになる。  
 **書き換える前にデフォルト状態で実行してうまくいくことを確認してから**、書き換えよう。  
 実行方法は、[プロジェクトの実行方法](#run_project)参照
 
-```python
+```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
