@@ -80,6 +80,16 @@ hr {
   width: 2%;
 }
 
+pre {
+  background-color: #393939;
+  border: #CCC solid 1px;
+  padding: 0.5em;
+  overflow-x: auto;
+  font-family: "Courier New", Courier, monospace;
+  line-height: 1.5;
+  font-size: 10pt;
+}
+
 ol li {
   padding-left: 1em;
   text-indent: -1em;

@@ -4,6 +4,9 @@
 2. [パッケージの導入方法](#get_packages)
 3. [ローカライズ方法](#localization)
 4. [プロジェクト実行方法](#run_project)
+5. [デバッグ方法](#debug)
+6. [Riverpod の使い方（ver3.0以降）](#riverpod)
+
 ---
 
 <div id="create_project"></div>
@@ -111,8 +114,33 @@ dev_dependencies:
   riverpod_lint: ^3.0.0        # Riverpod コード特有の問題を静的解析＆自動修正するパッケージ
 ```
 
-これにて flutter プロジェクト作成作業完了！
-iOSシミュレーターを起動した後
+#### 7. riverpod_lint を有効にする
+
+riverpod_lint を有効にするには、analysis_options.yaml に以下を追記する必要がある追記する必要がある。
+
+```python
+analyzer:
+  plugins:
+    - custom_lint
+```
+
+#### 8. main.dart で　ProviderScope　ウィジェットをウィジェットツリーの最上位に配置
+lob/main.dart の main() メソッドを以下のように書き換えて、roviderScope　ウィジェットをウィジェットツリーの最上位に配置する。
+
+```dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+void main() {
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
+}
+```
+
+これにて flutter プロジェクト作成作業完了！🙌
+
 
 <div id="about_riverpod"></div>
 
@@ -516,4 +544,247 @@ flutter run
 1. VSCode の左側バーの「実行とデバッグ」ボタンをクリック。
 2. エクスプローラーペインがデバッグペインに変わるので、「実行とデバッグ」ボタンをクリックすればデバッグ開始。
 
+---
 
+<div id="riverpod"></div>
+
+# 6. Riverpod の使い方（ver3.0以降）
+
+## 6-1. Providerの生成
+Provider は、大きく分けて以下の2つに分類される。  
+
+- 関数ベース --- 状態を外部から「変更不可能」
+- クラスベース --- 状態を外部から「変更可能」
+
+### 関数ベースの Provider 生成
+関数ベースの Provider を生成させる際のルールは以下の２つ。
+
+- @riverpod アノテーションを付与する
+- 第１引数に Ref 型のオブジェクトを受け取る
+
+```dart
+// @riverpodを使用するために利用
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+// コード生成に作成されるファイルの指定「part '[ファイル名].g.dart'」
+part 'main.g.dart';
+
+@riverpod
+String greet(Ref ref) { // ← GreetRef などにせず、Refとする！じゃないとエラーになる.
+  return 'Hello, World!!';
+}
+```
+
+上記のようなコードを作成した後下記コマンドを実行すると、⚪︎⚪︎⚪︎.g.dart (例ではmain.g.dart) ファイルにProviderコードが生成される。  
+**Provider名は末尾に Provider が付与される**ので、上記例だと greedProvider となる。  
+`-d` は、古い競合ファイルを一旦削除してくれるオプション。
+
+```sh
+dart run build_runner build -d
+```
+
+生成に失敗してやり直す場合は、上記コマンドの前に下記コマンドを実行して、build_runner が生成した中間ファイルやキャッシュを丸ごと削除しておくとよい。  
+前回生成成功していれば、キャッシュ削除しなくてもいいかな（通常の dart run build_runner build -d は「差分ビルド（変更された部分だけ再生成）」ができて効率的になるから）
+
+```sh
+dart run build_runner clean 
+```
+
+#### 非同期処理の場合
+以下の２点以外は、通常の関数ベース Provider 生成と同じ。
+
+- 戻り値を Future 型にする
+- async キーワードをつける
+
+以下、例。
+
+```dart
+@riverpod
+Future<String> asyncGreet(Ref ref) async {
+  await Future.delayed(const Duration(seconds: 3));
+  return 'Hello, World!!';
+}
+```
+
+#### 非同期の場合に　Provider が提供する型 AsyncValue
+**AsyncValue** は Riverpod が提供するクラスで、下記３つの状態を表現できる、非同期の値を安全に扱える便利クラス。  
+
+- loading --- 非同期処理実行中
+- data --- 正常終了時
+- error --- エラー終了時
+
+以下、asyncGreetProvider を監視するウィジェットの実装例。
+
+```dart
+class Home extends ConsumerWidget {
+  const Home({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<String> greet = ref.watch(asyncGreetProvider);
+    return Center(
+      // Dart3以降は、以下のSwitch式に移行する方針らしい
+      child: switch (greet) {
+        AsyncData(:final value) => Text(value),
+        AsyncLoading() => const Text("Loading..."),
+        AsyncError(:final error, :final stackTrace) => Text('Error: $error'),
+      },
+      // Dart2までの標準的な書き方は↓（Dart3でも書けるが、上記switch式に移行する方針）
+      // child: greet.when(
+      //   loading: () => const Text("Loading..."),
+      //   data: (greet) => Text(greet),
+      //   error: (error, stack) => Text('Error: $error'),
+      // ),
+    );
+  }
+}
+```
+
+#### Provider から値を取得するメソッド
+Providerから値を取得するには、WidgetRefのwatchメソッドとreadメソッドの２つがあるが、**Providerから値を取得するには基本 watch メソッドを使う**。  
+readメソッドを使うのは、値を監視する必要のな監視する必要のないボタンのタップイベントやStateのライフサイクルイベントなど。  
+以下、watch メソッドと read メソッドの違い。
+
+##### ref.watch(provider)
+- 値の**購読（subscribe）**を開始する（＝Providerの値を監視する）。
+- 値が変わるたびにウィジェットを再ビルドする。
+- UI（build メソッドや ConsumerWidget/Consumer）で使うのが基本。
+
+##### ref.read(provider)
+- 今この瞬間の値を一度だけ取得します。購読（＝Providerの値の監視）はしない。
+- 値が変わっても 自動再ビルドはされない。
+- コールバック内（onPressed 等）や、notifier へのアクセスに使う。
+
+#### Provider に値を渡す場合
+関数ベースの Provider の場合、第２引数以降にパラメーターを記述する。  
+
+```Dart
+@riverpod
+String greet(Ref ref, String str) {
+  return 'Hello, $str';
+}
+```
+
+### クラスベースの Provider 生成
+クラスベースの Provider を生成させる際のルールは以下の3つ。
+
+- @riverpod アノテーションを付与する
+- _$ + クラス名の型を継承する
+- 初期値を build メソッドで返す
+
+
+##### 注意点: 生成されるプロバイダ名はクラス名から Notifier を除いたもの
+以下のように書くと、生成される識別子は counterProvider（**Notifier という語尾が取り除かれて末尾に Provider が付与される**）になる。
+
+```dart
+@riverpod
+class CounterNotifier extends _$CounterNotifier {
+  ...
+} 
+```
+
+#### 非同期処理の場合
+以下の２点以外は、通常の関数ベース Provider 生成と同じ。
+
+- build メソッドの戻り値を Future 型にする
+- build メソッドに async キーワードをつける
+
+以下、例。
+
+```dart
+@riverpod
+class CounterNotifier extends _$CounterNotifier {
+  @override
+  Future<int> build() async {
+    await Future<void>.delayed(const Duration(seconds: 1));
+    return 0;
+  }
+
+  void increment() async {
+    final currentState = state.asData?.value;
+    if (currentState == null) return;
+    state = const AsyncLoading();
+    await Future<void>.delayed(const Duration(seconds: 1));
+    state = AsyncValue.data(currentState + 1);
+
+  }
+}
+
+```
+
+#### Provider に値を渡す場合
+クラスベースの Provider の場合、build メソッドの引数にパラメーターを記述する。
+
+```dart
+@riverpod
+class CounterNotifier extends _$CounterNotifier {
+  @override
+  int build(int num) {
+    return num;
+  }
+
+  void increment() async {
+    state = state + 1;
+  }
+}
+
+
+## ver3.0 になって変わったこと
+[公式の移行ガイド](https://riverpod.dev/docs/3.0_migration) 参照  
+
+#### GreetRef のような Ref サブクラス が廃止された
+Riverpod 3 では @riverpod 関数の引数は 常に Ref（型なし）になり、GreetRef などは生成されない。  
+以下のように記述する。
+
+```dart
+// @riverpodを使用するために利用
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+// コード生成に作成されるファイルの指定「part '[ファイル名].g.dart'」
+part 'main.g.dart';
+
+@riverpod
+String greet(Ref ref) { // ← GreetRef などにせず、Refとする！じゃないとエラーになる
+  return 'Hello, World!!';
+}
+```
+
+## Provider の値をフィルタしたい場合
+例えば、以下のような Point クラスを提供する Provider があったとして、ウィジェットでは x の値のみ欲しい（yは不要）場合。
+
+```dart
+class Point {
+  Point(this.x, this.y)
+
+  int x;
+  int y;
+}
+```
+
+以下のように select メソッドを利用して、x の値のみを取得することが可能。
+
+```dart
+final x = ref.watch(pointProvider.select((point) => point.x));
+```
+
+## Provider のライフサイクル
+コード生成を利用した場合、Provider は購読されなくなる（＝監視されなくなる）と自動的に破棄される。  
+例えば、あるダイアログの応対を管理する Provider は、ダイアログが閉じられると破棄され、再度開かれた際には状態がリセットされている。  
+
+#### Provider を自動ではきさせないようにしたい場合
+例えば、アプリの起動中は状態を保持したいケースや、複数の画面をまたいで状態を共有したいケースの場合など、そのような場合は Provider を自動で破棄させないようにすることも可能。  
+@riverpod を @Riverpod に変えて、keepAlive プロパティに true を設定すればOK。  
+
+```dart
+@Riverpod(keepAlive: true) // ←ここ！
+class CounterNotifier extends _$CounterNotifier {
+  @overdide
+  int build() => 0;
+
+  void increment() {
+    state = state + 1;
+  }
+}
+
+Providerを任意のタイミングで再構築したい場合は、以下のように refresh メソッドを利用する。
+
+```dart
+ref.refresh(counterProvider);
+```
