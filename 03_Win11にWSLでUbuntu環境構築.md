@@ -1,5 +1,15 @@
 # Windows WSL入門：インストールからUbuntu環境構築まで完全ガイド
 
+
+1. [WSLのインストール](#install_wsl)
+1. [Ubuntuの初期設定](#initialize_ubuntu)
+1. [開発ツールのインストール（gcc, Git, wget, nvm, node.js, Python）](#install_dev_tools)
+1. [Zsh の設定](#zsh)
+1. [Visual Studio Codeとの連携](#vscode_on_wsl)
+1. [WSL 用 Python 仮想環境](#python_venv)
+1. [よく使うコマンド](#useful_wsl_command)
+
+
 参考URL：https://zenn.dev/long910/articles/2026-02-21-wsl-ubuntu-setup
 
 ## はじめに
@@ -24,6 +34,9 @@ WSL（Windows Subsystem for Linux）には現在2つのバージョンがあり�
 - Windows 11（すべてのバージョン）
 - BIOSで仮想化機能（VT-x/AMD-V）が有効
 
+---
+
+<div id="install_wsl"></div>
 
 ## WSLのインストール
 
@@ -69,6 +82,10 @@ wsl --set-default-version 2
 # 特定のディストリビューションをWSL2に変換
 wsl --set-version Ubuntu 2
 ```
+
+---
+
+<div id="initialize_ubuntu"></div>
 
 ## Ubuntuの初期設定
 再起動後、Ubuntuを起動するとユーザー名とパスワードの設定を求められます。
@@ -121,7 +138,11 @@ sudo timedatectl set-timezone Asia/Tokyo
 timedatectl
 ```
 
-## 開発ツールのインストール
+---
+
+<div id="install_dev_tools"></div>
+
+## 開発ツールのインストール（gcc, Git, wget, nvm, node.js, Python）
 ### 基本的なビルドツール
 
 ```
@@ -185,7 +206,11 @@ python3 --version
 pip3 --version
 ```
 
-## シェルの設定
+---
+
+<div id="zsh"></div>
+
+## Zsh の設定
 
 ### Zshのインストールとデフォルト化
 
@@ -283,6 +308,10 @@ default=your_username
 wsl --shutdown
 ```
 
+---
+
+<div id="vscode_on_wsl"></div>
+
 ## Visual Studio Codeとの連携
 ### WSL拡張機能のインストール
 VSCode側で `WSL` 拡張機能をインストールします（拡張機能ID: ms-vscode-remote.remote-wsl）。
@@ -297,7 +326,13 @@ code .
 
 初回起動時はVSCode Serverが自動でインストールされます。
 
-## Python仮想環境
+
+
+---
+
+<div id="python_venv"></div>
+
+## WSL 用 Python 仮想環境
 Windowsで作った .venv はWSLでは使えません。 Windows用（.exe）とLinux用でバイナリが異なるためです。  
 Windows側の .venv はそのままにして、WSL用に新しい仮想環境（例えば .venv_wsl）を作ります。
 
@@ -326,6 +361,10 @@ source .venv_wsl/bin/activate
 docker --version
 docker run hello-world
 ```
+
+---
+
+<div id="useful_wsl_command"></div>
 
 ## よく使うコマンド
 ### WSL管理コマンド（PowerShellで実行）
