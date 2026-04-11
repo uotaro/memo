@@ -16,7 +16,10 @@
 
 #### [Claude Code 導入](#claude_code)
 
+1. [Claude Code 要件](#claude_code_requirements)
 1. [ripgrep インストール](#install_ripgrep)
+1. [Claude Code インストール](#claude_code_install)
+1. [VSCode に Claude Code 導入](#vscode_with_claude_code)
 
 ---
 
