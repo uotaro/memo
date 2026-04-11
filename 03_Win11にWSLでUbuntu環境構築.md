@@ -1,5 +1,6 @@
-# Windows WSL入門：インストールからUbuntu環境構築まで完全ガイド
+# Windows WSL導入、Ubuntu環境構築、Claude Code 開発環境構築
 
+#### Ubuntu 環境構築まで
 
 1. [WSLのインストール](#install_wsl)
 1. [Ubuntuの初期設定](#initialize_ubuntu)
@@ -7,10 +8,17 @@
 1. [Zsh の設定](#zsh)
 1. [Visual Studio Codeとの連携](#vscode_on_wsl)
 1. [WSL 用 Python 仮想環境](#python_venv)
-1. [よく使うコマンド](#useful_wsl_command)
-
+1. [よく使う WSL コマンド](#useful_wsl_command)
 
 参考URL：https://zenn.dev/long910/articles/2026-02-21-wsl-ubuntu-setup
+
+---
+
+#### [Claude Code 導入](#claude_code)
+
+1. [ripgrep インストール](#install_ripgrep)
+
+---
 
 ## はじめに
 WSL（Windows Subsystem for Linux）は、Windows上でLinux環境をネイティブに動作させる仕組みです。仮想マシンと異なり、オーバーヘッドが少なく、Windowsとのファイル共有も容易です。本記事では、WSLのインストールからUbuntu環境の各種設定まで、備忘録として詳しくまとめます。
@@ -366,7 +374,7 @@ docker run hello-world
 
 <div id="useful_wsl_command"></div>
 
-## よく使うコマンド
+## よく使う WSL コマンド
 ### WSL管理コマンド（PowerShellで実行）
 
 ```
@@ -446,3 +454,149 @@ wsl --shutdown
 
 ## まとめ
 WSLを使うことで、Windows上でLinuxの豊富なツールをほぼネイティブな速度で利用できます。特に開発環境として非常に優秀です。本記事で紹介した設定を行えば、快適な開発環境が整います。
+
+---
+
+<div id="claude_code"></div>
+
+## Claude Code 導入
+
+1. [Claude Code 要件](#claude_code_requirements)
+1. [ripgrep インストール](#install_ripgrep)
+1. [Claude Code インストール](#claude_code_install)
+1. [VSCode に Claude Code 導入](#vscode_with_claude_code)
+
+参考URL：[Claude Code Docs](https://code.claude.com/docs/ja/quickstart)
+
+---
+
+<div id="claude_code_requirements"></div>
+
+## Claude Code 要件
+
+- macOS 13以上、Windows 10 1809以上、またはUbuntu 20.04以上
+- Claude Proサブスクリプション（月額20ドル）以上が必須。無料プランにはClaude Codeへのアクセスが含まれない。
+
+---
+
+<div id="install_ripgrep"></div>
+
+## ripgrep インストール
+
+### ripgrep とは
+
+ripgrep (rg) は、一言で言うと「爆速で賢い検索ツール」。   
+標準的な検索コマンド（grep）の現代版のようなもので、Rust 言語で書かれており、大規模なプログラムの中から特定のコードを瞬時に見つけ出すことができる。  
+
+Claude Code は指示を理解するために、内部でプロジェクトのファイルを検索してコードを読み取る。  
+その際、ripgrep があると以下のメリットがある。   
+
+- Claude Code のレイテンシ大幅短縮:   
+ripgrep は数万ファイルあるような大規模プロジェクトでも、ミリ秒単位で検索を終える。  
+これにより、Claude の回答待ち時間が大幅に短縮される。
+
+- 不要なファイルを自動で無視:   
+.gitignore に書かれた設定を自動で読み取り、node_modules などの膨大な不要ファイルを最初から検索対象から外してくれる。  
+
+- トークンの節約:   
+賢くフィルタリングされた結果を AI に渡せるため、余計な情報を読み込ませずに済み、API の利用料金（トークン消費）を抑えることにも繋がる。 
+
+### ripgrep のインストール方法
+
+```
+sudo apt update
+sudo apt install ripgrep
+```
+
+インストール後、`rg --version` と打ってバージョンが表示されれば準備完了。
+
+---
+
+<div id="claude_code_install"></div>
+
+## Claude Code インストール
+Claude Codeは、すべての主要プラットフォームで1つのコマンドでインストールできる。  
+WSL の Ubuntu 上で VSCode を起動して使うので、Linux 用コマンドでインストールする。
+
+### macOS / Linux:
+
+```
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+### Windows
+PowerShell にて下記コマンド実行
+
+```
+irm https://claude.ai/install.ps1 | iex
+```
+
+### Claude Code へのパスを通す
+
+`curl -fsSL https://claude.ai/install.sh | bash` を実行すると、以下のように出力されるのでパスをとおす。  
+
+```
+$ curl -fsSL https://claude.ai/install.sh | bash
+Setting up Claude Code...
+
+✔ Claude Code successfully installed!
+
+  Version: 2.1.101
+
+  Location: ~/.local/bin/claude
+
+
+  Next: Run claude --help to get started
+
+⚠ Setup notes:
+  • Native installation exists but ~/.local/bin is not in your PATH. Run:
+
+  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+
+
+✅ Installation complete!
+```
+
+以下のコマンドでパスを zsh に通す。
+
+```
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+```
+
+上記設定を今のターミナルに反映
+
+```
+source ~/.zshrc
+```
+
+設定が終わったら、以下のコマンドでパスが通ったか確認する
+
+```
+claude --version
+```
+
+---
+
+<div id="vscode_with_claude_code"></div>
+
+
+## VSCode に Claude Code 導入
+
+### VS Code のターミナルで起動する
+1. VS Code の画面下部にあるターミナルを使う。
+2. VS Code 内のターミナルで claude と入力して Enter を押す。
+3. 初回は Anthropic アカウントへのログイン（認証） を求められる。  
+ターミナルに表示される URL をクリックしてブラウザで開き、ログインして承認する。
+4. 認証が終わると、ターミナル上で Claude と対話できるようになる。
+
+
+### VS Code との強力な連携機能（おすすめ）
+WSL 上の VS Code で Claude Code を動かす最大のメリットは、「Claude がエディタを操作できる」 こと。  
+ターミナルで claude が起動したら、以下のコマンドを実行してみよう。
+
+| コマンド           | 説明                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| /edit [ファイル名] | 指定したファイルを Claude に編集させることができる。                                   |
+| /ide              | 現在開いている VS Code のエディタ情報を同期し、プロジェクト全体を把握させることができる。 |
+| Shift + Enter     |  複数行の指示を入力したい時に便利。                                                   |
+
