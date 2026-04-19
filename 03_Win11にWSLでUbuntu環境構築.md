@@ -6,6 +6,7 @@
 1. [Ubuntuの初期設定](#initialize_ubuntu)
 1. [開発ツールのインストール（gcc, Git, wget, nvm, node.js, Python）](#install_dev_tools)
 1. [Zsh の設定](#zsh)
+1. [WSL2の開始ディレクトリ設定](#wsl_homedir_settings)
 1. [Visual Studio Codeとの連携](#vscode_on_wsl)
 1. [WSL 用 Python 仮想環境](#python_venv)
 1. [よく使う WSL コマンド](#useful_wsl_command)
@@ -268,6 +269,25 @@ cd /mnt/c/Users/ユーザー名/Desktop
 > 【注意】
 > パフォーマンスの観点から、Linuxファイルの操作は/home/以下で行うことを推奨します。/mnt/c/以下でのLinux操作は速度が低下します。
 
+---
+
+<div id="wsl_homedir_settings"></div>
+
+## WSL2の開始ディレクトリ設定
+
+1. Windowsターミナルの設定 →「Ubuntu-22.04」 →「開始ディレクトリ」を空欄にする  
+→ WSL側の ~（/home/ユーザー名）がデフォルトになる 
+
+2. ~/.zshrc の先頭に以下を追加しておくと、どこから起動しても $HOME に移動できる。
+
+```
+# WSL起動時にホームディレクトリへ移動
+if [[ "$(pwd)" != "$HOME" && "$(pwd)" == /mnt/* ]]; then
+  cd ~
+fi
+```
+
+/mnt/ 配下（＝Windowsファイルシステム）から起動された場合だけ cd ~ するので、通常のターミナル操作には影響しない。
 
 ## WSLの設定ファイル
 
@@ -602,4 +622,3 @@ WSL 上の VS Code で Claude Code を動かす最大のメリットは、「Cla
 | /edit [ファイル名] | 指定したファイルを Claude に編集させることができる。                                   |
 | /ide              | 現在開いている VS Code のエディタ情報を同期し、プロジェクト全体を把握させることができる。 |
 | Shift + Enter     |  複数行の指示を入力したい時に便利。                                                   |
-
