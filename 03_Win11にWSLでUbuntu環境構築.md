@@ -5,7 +5,6 @@
 1. [WSLのインストール](#install_wsl)
 1. [Ubuntuの初期設定](#initialize_ubuntu)
 1. [開発ツールのインストール（gcc, Git, wget, nvm, node.js, Python）](#install_dev_tools)
-1. [Zsh の設定](#zsh)
 1. [WSL2の開始ディレクトリ設定](#wsl_homedir_settings)
 1. [Visual Studio Codeとの連携](#vscode_on_wsl)
 1. [WSL 用 Python 仮想環境](#python_venv)
@@ -218,27 +217,6 @@ python3 --version
 pip3 --version
 ```
 
----
-
-<div id="zsh"></div>
-
-## Zsh の設定
-
-### Zshのインストールとデフォルト化
-
-```
-sudo apt install -y zsh
-
-# デフォルトシェルを変更
-chsh -s $(which zsh)
-```
-
-### Oh My Zshのインストール（オプション）
-
-```
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
 ## ファイルシステムの理解
 WSLとWindowsのファイルシステムのアクセス方法を理解することが重要です。
 
@@ -278,11 +256,11 @@ cd /mnt/c/Users/ユーザー名/Desktop
 1. Windowsターミナルの設定 →「Ubuntu-22.04」 →「開始ディレクトリ」を空欄にする  
 → WSL側の ~（/home/ユーザー名）がデフォルトになる 
 
-2. ~/.zshrc の先頭に以下を追加しておくと、どこから起動しても $HOME に移動できる。
+2. ~/.bashrc の先頭に以下を追加しておくと、どこから起動しても $HOME に移動できる。
 
 ```
 # WSL起動時にホームディレクトリへ移動
-if [[ "$(pwd)" != "$HOME" && "$(pwd)" == /mnt/* ]]; then
+if [ "$(pwd)" != "$HOME" ] && echo "$(pwd)" | grep -q "^/mnt/"; then
   cd ~
 fi
 ```
@@ -574,22 +552,22 @@ Setting up Claude Code...
 ⚠ Setup notes:
   • Native installation exists but ~/.local/bin is not in your PATH. Run:
 
-  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+  echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 
 
 ✅ Installation complete!
 ```
 
-以下のコマンドでパスを zsh に通す。
+以下のコマンドでパスを bash に通す。
 
 ```
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 ```
 
 上記設定を今のターミナルに反映
 
 ```
-source ~/.zshrc
+source ~/.bashrc
 ```
 
 設定が終わったら、以下のコマンドでパスが通ったか確認する
@@ -605,20 +583,22 @@ claude --version
 
 ## VSCode に Claude Code 導入
 
-### VS Code のターミナルで起動する
-1. VS Code の画面下部にあるターミナルを使う。
-2. VS Code 内のターミナルで claude と入力して Enter を押す。
-3. 初回は Anthropic アカウントへのログイン（認証） を求められる。  
-ターミナルに表示される URL をクリックしてブラウザで開き、ログインして承認する。
-4. 認証が終わると、ターミナル上で Claude と対話できるようになる。
+### 拡張機能「Claude Code for VS Code」をインストール
+
+VSCodeの拡張機能「Claude Code for VS Code（識別コード：anthropic.claude-code）をインストールする。
+
+<div style="width=50%;">
+
+![](./images/03/plugin_claude_code.png)
+
+</div>
 
 
-### VS Code との強力な連携機能（おすすめ）
-WSL 上の VS Code で Claude Code を動かす最大のメリットは、「Claude がエディタを操作できる」 こと。  
-ターミナルで claude が起動したら、以下のコマンドを実行してみよう。
 
-| コマンド           | 説明                                                                               |
-| ----------------- | ---------------------------------------------------------------------------------- |
-| /edit [ファイル名] | 指定したファイルを Claude に編集させることができる。                                   |
-| /ide              | 現在開いている VS Code のエディタ情報を同期し、プロジェクト全体を把握させることができる。 |
-| Shift + Enter     |  複数行の指示を入力したい時に便利。                                                   |
+拡張機能のインストールを完了してVSCodeを再読み込みすると、画面右上に Claude Code の太陽みたいなアイコンが表示されるようになる。  
+このアイコンをクリックすると、Claude codeとの会話を始められる。  
+
+##### 初回は Anthropic アカウントへのログイン認証が必要
+拡張機能をインストール後、Claude Codeを初めて実行するとログイン画面が表示される。  
+認証が終わると Claude と対話できるようになる。
+
