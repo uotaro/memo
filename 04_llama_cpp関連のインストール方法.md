@@ -2,7 +2,10 @@
 
 1. [CUDAツールキット nvcc のインストール](#install_nvcc)
 2. [Ubuntu用llama-cppをソースからビルド(CUDAありのため)](#install_llama_cpp)
-3. [llama_cpp_python のインストール](#install_llama_cpp_python)
+3. [llama.cpp サーバーの起動・停止方法](#llamacpp_server_start_stop)
+4. [llama.cpp サーバーにアクセスして生成](#llamacpp_server_generate)
+5. [llama_cpp_python のインストール](#install_llama_cpp_python)
+
 
 ---
 
@@ -140,7 +143,7 @@ SERVER_EXE="/home/ct1485/_local_wsl/08_tools/llama.cpp/build/bin/llama-server"
 
 ---
 
-<div id="install_llama_cpp_python"></div>
+<div id="llamacpp_server_start_stop"></div>
 
 ## 3. llama.cpp サーバーの起動・停止方法
 ### llama.cpp サーバーの起動
@@ -244,33 +247,6 @@ echo "[INFO] Check log:   tail -f ${LOG_FILE}"
 echo "[INFO] Stop server: bash 06_stop_api_server.bash"
 ```
 
-### llama.cpp API利用方法
-python にて、下記内容を実行すれば上記 llama-cpp サーバーから生成回答が得られるはず。
-
-```python
-from openai import OpenAI
-
-# サーバーのURL（バッチファイルで設定したポート）を指定
-client = OpenAI(base_url="http://localhost:8080/v1", api_key="llamacpp")
-
-# ストリーム生成
-response = client.chat.completions.create(
-    model="local-model", # サーバー側で読み込んでいるため、この文字列は任意です
-    messages=[{"role": "user", "content": "兵庫県姫路市でおすすめの観光スポットを5つ教えてください。"}],
-    stream=True,
-    temperature=0.7,
-    max_tokens=512
-)
-
-# 逐次表示
-for chunk in response:
-    content = chunk.choices[0].delta.content
-    if content:
-        print(content, end="", flush=True)
-
-print("\n")
-```
-
 ### llama.cpp サーバーの停止
 下記内容の bash スクリプトを作成する。  
 `06_stop_api_server.bash` という名前で作成した場合 `bash 06_stop_api_server.bash` で実行。
@@ -303,14 +279,50 @@ fi
 
 ---
 
+<div id="llamacpp_server_generate"></div>
+
+## 4. llama.cpp サーバーにアクセスして生成
+
+### llama.cpp API利用方法
+python にて、下記内容を実行すれば上記 llama-cpp サーバーから生成回答が得られるはず。  
+サンプルソース：[https://github.com/uotaro/llamacpp_and_lora/blob/main/07_ask_local_api_server.py](https://github.com/uotaro/llamacpp_and_lora/blob/main/07_ask_local_api_server.py)
+
+
+```python
+from openai import OpenAI
+
+# サーバーのURL（バッチファイルで設定したポート）を指定
+client = OpenAI(base_url="http://localhost:8080/v1", api_key="llamacpp")
+
+# ストリーム生成
+response = client.chat.completions.create(
+    model="local-model", # サーバー側で読み込んでいるため、この文字列は任意です
+    messages=[{"role": "user", "content": "兵庫県姫路市でおすすめの観光スポットを5つ教えてください。"}],
+    stream=True,
+    temperature=0.7,
+    max_tokens=512
+)
+
+# 逐次表示
+for chunk in response:
+    content = chunk.choices[0].delta.content
+    if content:
+        print(content, end="", flush=True)
+
+print("\n")
+```
+
+
+---
+
 <div id="install_llama_cpp_python"></div>
 
-## 4. llama_cpp_python のインストール
+## 5. llama_cpp_python のインストール
 
 1. 共通：必要なビルドツールのインストール
 まず、ビルドに必要なツール類を Ubuntu 側にインストールする。
 
-```
+```bash
 sudo apt update
 sudo apt install -y build-essential python3-dev cmake
 ```
@@ -319,7 +331,7 @@ sudo apt install -y build-essential python3-dev cmake
 2. ビルド用パッケージを最新にする
 仮想環境（.venv_wsl）に入った状態で、まず以下のツール自体を最新版に上げる。
 
-```
+```bash
 # 仮想環境を起動（WindowsのScriptsではなくbinを使う）
 source .venv_wsl/bin/activate
 
@@ -334,7 +346,7 @@ pip install --upgrade pip setuptools wheel scikit-build-core
 仮想環境に入った状態で実行すること。
 
 
-```
+```bash
 # 仮想環境に入った状態で実行
 # キャッシュを使わずに、CUDA有効でビルド
 CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 pip install llama-cpp-python --no-cache-dir
@@ -344,13 +356,13 @@ CMAKE_ARGS="-DGGML_CUDA=on" FORCE_CMAKE=1 pip install llama-cpp-python --no-cach
 4. 本当にGPU版としてビルドされたか確認
 下記コマンドで確認する。
 
-```
+```bash
 python3 -c "import llama_cpp; print(f'CUDA support: {llama_cpp.llama_supports_gpu_offload()}')"
 ```
 
 5. 適当なGGUFモデルをダウンロードして、生成AIに答えさせてみよう
 
-```
+```python
 from llama_cpp import Llama
 
 # モデルのロード
