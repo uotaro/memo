@@ -7,6 +7,7 @@
 1. [開発ツールのインストール（gcc, Git, wget, nvm, node.js, Python）](#install_dev_tools)
 1. [WSL2の開始ディレクトリ設定](#wsl_homedir_settings)
 1. [Visual Studio Codeとの連携](#vscode_on_wsl)
+1. [Ubuntu 22.04 LTSで Python v3.12+ を使いたい場合](#ubuntu-2204-ltsで-python-v312-を使いたい場合)
 1. [WSL 用 Python 仮想環境](#python_venv)
 1. [よく使う WSL コマンド](#useful_wsl_command)
 
@@ -70,7 +71,7 @@ wsl --install
 
 ### 方法2：特定のディストリビューションを指定してインストール
 
-```
+```bash
 # 利用可能なディストリビューションの一覧
 wsl --list --online
 
@@ -83,7 +84,7 @@ wsl --install -d Ubuntu-24.04
 
 ## WSLのバージョン確認と設定
 
-```
+```bash
 # インストール済みディストリビューションの確認
 wsl --list --verbose
 
@@ -101,7 +102,7 @@ wsl --set-version Ubuntu 2
 ## Ubuntuの初期設定
 再起動後、Ubuntuを起動するとユーザー名とパスワードの設定を求められます。
 
-```
+```bash
 Enter new UNIX username: your_username
 New password: ********
 Retype new password: ********
@@ -113,14 +114,14 @@ Retype new password: ********
 ## パッケージの更新
 まず最初にパッケージリストとパッケージ自体を更新します。
 
-```
+```bash
 sudo apt update && sudo apt upgrade -y
 ```
 
 ## 日本語環境の設定
 ### 日本語パッケージのインストール
 
-```
+```bash
 sudo apt install -y language-pack-ja
 sudo update-locale LANG=ja_JP.UTF-8
 ```
@@ -133,7 +134,7 @@ locale
 
 以下のように表示されれば設定完了です。
 
-```
+```bash
 LANG=ja_JP.UTF-8
 LANGUAGE=
 LC_CTYPE="ja_JP.UTF-8"
@@ -142,7 +143,7 @@ LC_CTYPE="ja_JP.UTF-8"
 
 ### タイムゾーンの設定
 
-```
+```bash
 sudo timedatectl set-timezone Asia/Tokyo
 
 # 確認
@@ -156,7 +157,7 @@ timedatectl
 ## 開発ツールのインストール（gcc, Git, wget, nvm, node.js, Python）
 ### 基本的なビルドツール
 
-```
+```bash
 sudo apt install -y build-essential
 ```
 
@@ -170,7 +171,7 @@ sudo apt install -y build-essential
 
 ### Git
 
-```
+```bash
 sudo apt install -y git
 
 # バージョン確認
@@ -191,7 +192,7 @@ sudo apt install -y curl wget
 
 ### Node.js（nvmを使用）
 
-```
+```bash
 # nvmのインストール
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
@@ -208,7 +209,7 @@ npm --version
 
 ### Python
 
-```
+```bash
 # Python3とpipのインストール
 sudo apt install -y python3 python3-pip python3-venv
 
@@ -236,7 +237,7 @@ explorer.exe .
 ### WSLからWindowsのファイルへアクセス
 Windowsのドライブは/mnt/以下にマウントされています。
 
-```
+```bash
 # Cドライブへのアクセス
 ls /mnt/c/
 
@@ -258,7 +259,7 @@ cd /mnt/c/Users/ユーザー名/Desktop
 
 2. ~/.bashrc の先頭に以下を追加しておくと、どこから起動しても $HOME に移動できる。
 
-```
+```bash
 # WSL起動時にホームディレクトリへ移動
 if [ "$(pwd)" != "$HOME" ] && echo "$(pwd)" | grep -q "^/mnt/"; then
   cd ~
@@ -272,7 +273,7 @@ fi
 ### `.wslconfig`（Windowsユーザーフォルダに配置）
 `C:\Users\ユーザー名\.wslconfig` を作成して、WSL2全体のリソース設定を行います。
 
-```
+```bash
 [wsl2]
 # メモリ上限（物理メモリの50%程度が目安）
 memory=4GB
@@ -290,7 +291,7 @@ localhostForwarding=true
 ### `/etc/wsl.conf`（Ubuntu内に配置）
 Ubuntu内の `/etc/wsl.conf` で、ディストリビューション固有の設定を行います。
 
-```
+```bash
 [boot]
 # systemdを有効化（Ubuntu 22.04以降）
 systemd=true
@@ -328,14 +329,54 @@ VSCode側で `WSL` 拡張機能をインストールします（拡張機能ID: 
 ### WSLからVSCodeを起動
 WSLのターミナルから以下のコマンドでVSCodeを起動できます。
 
-```
+```bash
 # カレントディレクトリをVSCodeで開く
 code .
 ```
 
 初回起動時はVSCode Serverが自動でインストールされます。
 
+---
 
+## Ubuntu 22.04 LTSで Python v3.12+ を使いたい場合
+Ubuntu 22.04 LTS の標準は Python 3.10、Ubuntu 20.04 LTS の標準は Python 3.8。  
+より新しいバージョンの Python（ここでは3.12） を使いたい場合、例えば長いこと 22.04 で開発していた場合などは、
+「Ubuntu 24.04 LTS に上げる」のではなく「今の22.04のまま「解決策1（Deadsnakes PPA）」を使う」方が安全だったりする。
+
+| 選択肢                      | メリット  | デメリット / リスク |
+|----------------------------|-----------|-------------------|
+| ① 22.04のまま PPA を使う    | ・5分で終わる<br />・今動いている他の環境が壊れない | ・公式リポジトリ外のパッケージを使うことになる |
+| ② Ubuntu 24.04 LTS に上げる | ・OS標準で Python 3.12 が入る<br />・OS全体のサポート期限が延びる | ・OSのアップグレードに1時間以上かかる<br />・既存のアプリや設定が動かなくなるリスクがある |
+
+### 今の Ubuntu-22.04 のまま Deadsnakes PPA を使って Python 3.12 だけをピンポイントで導入する方法
+Ubuntu 公式が提供していない古いバージョンや最新バージョンの Python は、**Deadsnakes PPA** という信頼されている有志のリポジトリを追加することで、apt から簡単にインストールできるようになる。
+
+ターミナルで以下のコマンドを順番に実行。
+
+```bash
+# 1. PPAを追加するためのツールをインストール（既に入っていればスキップされます）
+sudo apt update
+sudo apt install -y software-properties-common
+
+# 2. Deadsnakes PPA をシステムに追加
+sudo add-apt-repository ppa:deadsnakes/ppa
+
+# 3. パッケージリストを更新
+sudo apt update
+
+# 4. 再度 Python 3.12 をインストール
+sudo apt install -y python3.12 python3.12-venv
+
+# 5. ちゃんと入ったか確認
+python3.12 --version
+```
+
+### Python のバージョンを指定して仮想環境を作る
+
+```bash
+# 「.venv」という名前で、Python 3.12ベースの仮想環境を作成
+python3.12 -m venv .venv
+```
 
 ---
 
@@ -345,7 +386,7 @@ code .
 Windowsで作った .venv はWSLでは使えません。 Windows用（.exe）とLinux用でバイナリが異なるためです。  
 Windows側の .venv はそのままにして、WSL用に新しい仮想環境（例えば .venv_wsl）を作ります。
 
-```
+```bash
 # WSLのターミナルで実行
 cd /mnt/c/Users/xxxuo/_local/02_study/20260222_llm/
 
@@ -365,7 +406,7 @@ source .venv_wsl/bin/activate
 2. Docker Desktopの設定で「Use the WSL 2 based engine」を有効化
 3. 「WSL Integration」でUbuntuを選択して有効化
 
-```
+```bash
 # WSL内でDockerが使えることを確認
 docker --version
 docker run hello-world
@@ -378,7 +419,7 @@ docker run hello-world
 ## よく使う WSL コマンド
 ### WSL管理コマンド（PowerShellで実行）
 
-```
+```bash
 # WSLの起動
 wsl
 
@@ -404,7 +445,7 @@ wsl --unregister Ubuntu
 ## トラブルシューティング
 ### WSLが起動しない場合
 
-```
+```bash
 # Windows機能の確認・有効化
 dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
 dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
@@ -415,14 +456,14 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /nores
 ### ファイルのパーミッションが正しくない場合
 `/etc/wsl.conf` に以下を追加します。
 
-```
+```bash
 [automount]
 options="metadata"
 ```
 
 ### WSLのネットワークが繋がらない場合
 
-```
+```bash
 # DNSの設定確認
 cat /etc/resolv.conf
 
@@ -431,14 +472,14 @@ cat /etc/resolv.conf
 
 `/etc/wsl.conf` に以下を追加します。
 
-```
+```bash
 [network]
 generateResolvConf=false
 ```
 
 その後 `/etc/resolv.conf` を編集します。
 
-```
+```bash
 sudo nano /etc/resolv.conf
 # nameserver 8.8.8.8 を追加
 ```
@@ -446,7 +487,7 @@ sudo nano /etc/resolv.conf
 ### メモリが解放されない場合
 WSL2はメモリを積極的にキャッシュするため、Windowsタスクマネージャーで大量のメモリを消費しているように見えることがあります。
 
-```
+```bash
 # WSLを再起動してメモリを解放
 wsl --shutdown
 ```
@@ -504,7 +545,7 @@ ripgrep は数万ファイルあるような大規模プロジェクトでも、
 
 ### ripgrep のインストール方法
 
-```
+```bash
 sudo apt update
 sudo apt install ripgrep
 ```
@@ -521,14 +562,14 @@ WSL の Ubuntu 上で VSCode を起動して使うので、Linux 用コマンド
 
 ### macOS / Linux:
 
-```
+```bash
 curl -fsSL https://claude.ai/install.sh | bash
 ```
 
 ### Windows
 PowerShell にて下記コマンド実行
 
-```
+```bash
 irm https://claude.ai/install.ps1 | iex
 ```
 
@@ -536,7 +577,7 @@ irm https://claude.ai/install.ps1 | iex
 
 `curl -fsSL https://claude.ai/install.sh | bash` を実行すると、以下のように出力されるのでパスをとおす。  
 
-```
+```bash
 $ curl -fsSL https://claude.ai/install.sh | bash
 Setting up Claude Code...
 
@@ -560,19 +601,19 @@ Setting up Claude Code...
 
 以下のコマンドでパスを bash に通す。
 
-```
+```bash
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 ```
 
 上記設定を今のターミナルに反映
 
-```
+```bash
 source ~/.bashrc
 ```
 
 設定が終わったら、以下のコマンドでパスが通ったか確認する
 
-```
+```bash
 claude --version
 ```
 
