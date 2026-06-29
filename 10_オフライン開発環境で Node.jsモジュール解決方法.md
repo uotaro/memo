@@ -22,11 +22,12 @@
 |-------------------------|---------------------|------------------|
 | オフライン化の手間      | .yarnrc を書いてミラー設定が必要                                                                | 標準でプロジェクト内に .zip が集まる（設定不要）                            |
 | ファイル転送のしやすさ  | 展開後の node_modules は数万ファイルになり、SPCへの転送が激重。 .tgz のままでも管理が少し煩雑。 | 数百個の .zip ファイルにスマートにまとまるため、SPCへの転送が圧倒的に速い。 |
-| Node.js v24 への対応    | メンテナンスモード（古い仕様）。最新Nodeでの動作にたまに怪しい挙動がある。                      | 現役で開発中。最新の Node.js v24 や Vue 3.5 に完全対応。                    |
+| Node.js 最新ver への対応    | メンテナンスモード（古い仕様）<br />[公式](https://endoflife.date/yarn) が、最新バージョンへの移行を強く勧めている。     | 現役で開発中。                   |
 | VSCodeとの相性          | 特別な設定なしで動く。                                                                          | PnP（Zip読み込み）の仕組み上、VSCode側に「SDK」の導入が必須（後述）。       |
 
 
 #### 参考URL:
+- [Yarnとは何か？Yarn Classic (v1)とYarn Berry (v2)の概要と違いを徹底解説](https://www.issoh.co.jp/tech/details/9005/#Yarn_Classic_v1Yarn_Berry_v2)
 - [Yarnのクラシック版とBerry（v2以降）の違いと注意点](https://konux.jp/blog/yarn-classic-vs-berry/)
 - [Next.jsをYarn 2のPnP/Zero-Installs + Dockerで動かす](https://zenn.dev/ryo511/articles/4eef0fc13fedcc)
 
@@ -143,8 +144,6 @@ EOF
 # Node.js パッケージ群のダウンロード
 yarn install
 ```
-
-以下の説明書きを完成させてくれますか？
 
 `yarn install` コマンドによりNode.js パッケージ群のダウンロードができたら、
 プロジェクトフォルダ下に以下のようなフォルダ・ファイルができているはず。
