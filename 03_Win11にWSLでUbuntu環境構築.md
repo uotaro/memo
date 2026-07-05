@@ -4,6 +4,7 @@
 
 1. [WSLのインストール](#install_wsl)
 1. [Ubuntuの初期設定](#initialize_ubuntu)
+1. [DNSサーバー・プロキシ設定](#setting_proxy_dns)
 1. [開発ツールのインストール（gcc, Git, wget, nvm, node.js, Python）](#install_dev_tools)
 1. [WSL2の開始ディレクトリ設定](#wsl_homedir_settings)
 1. [Visual Studio Codeとの連携](#vscode_on_wsl)
@@ -97,9 +98,8 @@ wsl --set-version Ubuntu 2
 
 ---
 
-<div id="initialize_ubuntu"></div>
+### 再起動後、Ubuntu にてユーザー名＆パスワード設定
 
-## Ubuntuの初期設定
 再起動後、Ubuntuを起動するとユーザー名とパスワードの設定を求められます。
 
 ```bash
@@ -111,22 +111,109 @@ Retype new password: ********
 > 【注意】
 > このユーザー名とパスワードはWindowsのアカウントとは独立しています。sudoコマンド実行時に必要になるので必ず覚えておきましょう。
 
-## パッケージの更新
+<div id="initialize_ubuntu"></div>
+
+## Ubuntuの初期設定
+
+### パッケージの更新
 まず最初にパッケージリストとパッケージ自体を更新します。
 
 ```bash
 sudo apt update && sudo apt upgrade -y
 ```
 
-## 日本語環境の設定
-### 日本語パッケージのインストール
+<div id="setting_proxy_dns"></div>
+
+### DNSサーバー・プロキシ設定
+パッケージ更新に失敗する場合は、DNSサーバー、プロキシ設定を見直しましょう。
+
+WSL2 は Windows とは独立した「仮想マシン」として動作するため、Windows 側が社内プロキシや DNS を自動で通してくれていても、Linux側（Ubuntu）にはその設定が引き継がれず、外のインターネット（Ubuntuのアップデートサーバー）に接続できない状態になります。
+
+#### 1. 「Temporary failure resolving...」と出る場合（DNSの確認）
+もしエラーの中に `Temporary failure resolving 'archive.ubuntu.com'` といった「名前解決の失敗」が含まれている場合は、WSL2 が社内の DNS サーバー（または外部の DNS ）を見つけられていません。  
+`ping 8.8.8.8` コマンドは通るが `ping google.com` コマンドはエラーになる場合は、DNS（名前解決） の問題です。  
+以下の対策①②いずれかを実施してください。
+
+##### DNS対策①：Windows 側の DNS 設定をミラーリングする
+Windows 11＋近年の WSL2 であれば、設定ファイル（.wslconfig）に1行足すだけで、Windows の DNS 設定を綺麗に WSL2 へトンネリング（同期）してくれる機能があります。
+
+1. Windows側で「メモ帳」などを開き、以下の内容を記述します。
+
+```
+[wsl2]
+dnsTunneling=true
+```
+
+2. このファイルを、ユーザーフォルダ直下（C:\Users\<あなたのユーザー名>\.wslconfig）に保存します。※ファイル名の先頭にドット（.）を忘れないようにしてください。
+
+3. WindowsのPowerShellかコマンドプロンプトを開き、WSL2を一度完全にシャットダウンします。
+
+```
+wsl --shutdown
+```
+
+再びUbuntuを起動し、ping google.com などで外と通信できるか確認します。
+
+##### DNS対策②：Ubuntu 内で直にDNS設定する
+対策①でうまくいかない場合、以下の方法で直に Ubuntu 内にて設定します。
+
+1. Windows 側で、コマンドプロンプトにて `ipconfig /all` で調べられる（「DNS サーバー」（または DNS Servers）の横に表示されているIPアドレス）。  
+または、Piowershell にて `Get-DnsClientServerAddress` コマンドで確認できます。
+１つ、またはメインとサブの2つのアドレスがヒットするはず。
+
+2. 下記コマンドで2つのDNSサーバーを設定します。
+
+
+```bash
+echo -e "nameserver メインDNSサーバーアドレス\nnameserver サブDNSサーバーアドレス" | sudo tee /etc/resolv.conf
+```
+
+#### 2. 「Connection timed out」や「403 Forbidden」等になる場合（プロキシの確認）
+社内ネットワークからWebへのアクセスにプロキシサーバー（Proxy）の経由が必須な環境の場合、Ubuntu 側にもプロキシを教えてあげる必要があります。  
+`curl -I https://www.ubuntu.com` を叩くとタイムアウトするか応答がない場合、プロキシ が通っていません。  
+以下の対策を行ってください。
+
+##### 対策：apt用のプロキシ設定を追加する
+
+1. プロキシサーバーのIP：ポート番号を確認
+Windows 側で、コマンドプロンプトにて下記コマンドと入力すると、確認できます。
+
+```shell
+netsh winhttp show proxy
+```
+
+`プロキシ サーバー:  <プロキシサーバーのIPアドレスまたはホスト名>:<プロキシサーバーのポート番号>` 
+の箇所で確認できます。
+
+
+2. Ubuntu（apt）専用のプロキシ設定ファイルを新規作成します。
+
+Ubuntuのターミナルで以下のコマンドを実行し、設定ファイルを開きます（新規作成）。
+
+```bash
+sudo nano /etc/apt/apt.conf.d/00proxy
+```
+
+以下の内容を記述します（社内のプロキシサーバーのIPやポート番号、認証の有無に合わせて書き換えてください）。
+
+```
+Acquire::http::Proxy "http://プロキシサーバーのIP:ポート番号/";
+Acquire::https::Proxy "http://プロキシサーバーのIP:ポート番号/";
+```
+
+※もしプロキシに社員IDやパスワード等の認証が必要な場合は http://username:password@proxy_ip:port/ の形式になります。
+
+Ctrl + O ＞ Enter で保存し、Ctrl + X でnanoエディタを閉じます。
+
+### 日本語環境の設定
+#### 日本語パッケージのインストール
 
 ```bash
 sudo apt install -y language-pack-ja
 sudo update-locale LANG=ja_JP.UTF-8
 ```
 
-### ロケールの確認
+#### ロケールの確認
 
 ```
 locale
@@ -141,7 +228,7 @@ LC_CTYPE="ja_JP.UTF-8"
 ...
 ```
 
-### タイムゾーンの設定
+#### タイムゾーンの設定
 
 ```bash
 sudo timedatectl set-timezone Asia/Tokyo
