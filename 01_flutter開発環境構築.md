@@ -1,5 +1,7 @@
 # flutter 開発メモ
 
+1. [事前準備](#0-事前準備fvmインストール) 
+1. 
 1. [プロジェクト作成](#create_project)
 2. [パッケージの導入方法](#get_packages)
 3. [ローカライズ方法](#localization)
@@ -9,38 +11,238 @@
 
 ---
 
-<div id="create_project"></div>
+# 0. 事前準備：fvmインストール
 
-# 1. プロジェクト作成
+## 0-１. fvm インストール
 
-## 1-1. 初回のみ実施すること
-
-#### 1. グローバルに fvm 設定
+## 0-2. グローバルに fvm 設定
 ターミナルにて下記コマンド実施して、グローバル環境で flutter コマンド（`flutter create`コマンド）を実行できるようにする。  
 flutterのバージョンはなんでも良いので、自マシンにインストールした中で最新のflutterバージョンあたりをインストールしとこう。
 
 
 ```bash
 fvm global flutterバージョン（手持ちの中の最新バージョン指定しとこか）
-# 例
-fvm global 3.35.3
+# 例（2026年8月時点の手元環境: Flutter 3.44.9）
+fvm global 3.44.9
 ```
 
-#### 2. fvm のパスを通しておく
+#### 0-3. fvm のパスを通しておく
 ホームディレクトリ直下にある .bashrc (/Users/ユーザー名/.bashrc）に、下記１行を追記する。  
-これにより、どのディレクトリにいても fvm コマンドが実行できるようになる。
-
+これにより、どのディレクトリにいても fvm コマンドが実行できるようになる。  
+`fvm flutter コマンド` と入力しなくても、`flutter コマンド` でOKとなる。
 
 ```bash
 export PATH="$HOME/fvm/default/bin:$PATH"
 ```
 
-## 1-2. flutter プロジェクトの作成
+---
 
-#### 1. ターミナルにてプロジェクトフォルダを作成したいディレクトリを開く
+# 0. 事前準備：ClaudeCode インストール
 
-#### 2. プロジェクト作成コマンド実行
-手順1で移動したディレクトリにて、下記コマンドを実行して flutter プロジェクトを作成する。
+## 0-１. ClaudeCode インストール
+2026年現在公式ドキュメントによると、ネイティブインストーラー推奨に変わっていた。
+npm経由のインストールは2026年現在非推奨（Deprecated）扱い。
+理由は、以下あたりらしい。
+- Node.jsのバージョン差でチーム内で動作が微妙に違う問題
+- sudo npm install -g にまつわる権限トラブルを踏みがち
+
+### Mac / Linux
+
+```bash
+curl -fsSL https://claude.ai/install.sh|bash
+```
+
+claude コマンドが保存された場所（~/.local/bin）にパスを通す（zshの場合）
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+```
+
+### Windows
+WSL で Ubuntu 上から利用するなら上記コマンドでOK。  
+純粋に Windows 上で利用したい場合は、PowerShellを開いて以下を実行するだけ（管理者権限は不要）。
+
+```bash
+irm https://claude.ai/install.ps1|iex
+```
+
+パスも通してね
+
+## 0-2. 動作確認＆初回起動
+
+### 動作確認
+下記コマンドでバージョンを確認
+
+```bash
+claude --version
+```
+
+### 初回起動
+ClaudeCodeはカレントディレクトリをプロジェクトルートとして認識する。
+まず専用フォルダを用意してから起動。
+※ ホームディレクトリで起動すると意図しない範囲を操作される恐れがあるので注意
+
+```bash
+cd プロジェクトディレクトリパス
+claude
+```
+
+初回、以下のような画面が出るので初期設定する。
+
+```bash
+ctani@yachimizukonoMac-mini inventory_manager % claude
+Welcome to Claude Code v2.1.228
+..........................................................
+
+     *                                       █████▓▓░
+                                 *         ███▓░     ░░
+            ░░░░░░                        ███▓░
+    ░░░   ░░░░░░░░░░                      ███▓░
+   ░░░░░░░░░░░░░░░░░░░    *                ██▓░░      ▓
+                                             ░▓▓███▓▓░
+ *                                 ░░░░
+                                 ░░░░░░░░
+                               ░░░░░░░░░░░░░░░░
+                                                      *
+      ▗ ▗     ▖ ▖                       *
+                      *
+.......         ..........................................
+
+ Let's get started.
+
+ Choose the text style that looks best with your terminal
+ To change this later, run /theme
+
+   1. Auto (match terminal)
+ ❯ 2. Dark mode ✔
+   3. Light mode
+   4. Dark mode (colorblind-friendly)
+   5. Light mode (colorblind-friendly)
+   6. Dark mode (ANSI colors only)
+   7. Light mode (ANSI colors only)
+
+ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+  1  function greet() {
+  2 -  console.log("Hello, World!");                                                                                                                                   
+  2 +  console.log("Hello, Claude!");                                                                                                                                  
+  3  }
+ ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+  Syntax theme: Monokai Extended (ctrl+t to disable)
+```
+
+```bash
+Claude Code can be used with your Claude subscription or billed based on API usage through your Console account.
+
+ Select login method:
+ 
+ ❯ 1. Claude account with subscription · Pro, Max, Team, or Enterprise
+   2. Anthropic Console account · API usage billing
+   3. 3rd-party platform · Amazon Bedrock, Microsoft Foundry, or Vertex AI
+```
+
+```bash
+Welcome to Claude Code v2.1.228 
+..........................................................
+
+     *                                       █████▓▓░
+                                 *         ███▓░     ░░
+            ░░░░░░                        ███▓░
+    ░░░   ░░░░░░░░░░                      ███▓░
+   ░░░░░░░░░░░░░░░░░░░    *                ██▓░░      ▓
+                                             ░▓▓███▓▓░
+ *                                 ░░░░                   
+                                 ░░░░░░░░                 
+                               ░░░░░░░░░░░░░░░░           
+                                                      * 
+      ▗ ▗     ▖ ▖                       *   
+                      *                    
+.......         ..........................................
+
+ Logged in as xxx.uotaro.xxx@gmail.com
+ Login successful. Press Enter to continue…
+```
+
+```
+Welcome to Claude Code v2.1.228 
+..........................................................
+
+     *                                       █████▓▓░
+                                 *         ███▓░     ░░
+            ░░░░░░                        ███▓░
+    ░░░   ░░░░░░░░░░                      ███▓░
+   ░░░░░░░░░░░░░░░░░░░    *                ██▓░░      ▓
+                                             ░▓▓███▓▓░
+ *                                 ░░░░                   
+                                 ░░░░░░░░                 
+                               ░░░░░░░░░░░░░░░░           
+                                                      * 
+      ▗ ▗     ▖ ▖                       *   
+                      *                    
+.......         ..........................................
+
+ Use Claude Code's terminal setup?
+ 
+ For the optimal coding experience, enable the recommended settings
+ for your terminal: Option+Enter for newlines and no audible bell
+    
+ ❯ 1. Yes, use recommended settings
+   2. No, maybe later with /terminal-setup
+    
+ Enter to confirm · Esc to skip
+```
+
+```
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Accessing workspace:
+     
+ /Users/ctani/work/05_app/20260810_inventory_manager/03_src/inventory_manager
+            
+ Quick safety check: Is this a project you created or one you trust? (Like your own code, a well-known open source project, or work from your team). If not, take a moment
+ to review what's in this folder first.    
+                                             
+ Claude Code'll be able to read, edit, and execute files here.
+
+ Security guide
+                                                      
+ ❯ 1. Yes, I trust this folder          
+   2. No, exit
+
+ Enter to confirm · Esc to cancel
+ ```
+
+### 接続確認
+Claude のチャットパネル似て、以下を入力して応答があれば導入完了。IDEとの連携状況が表示されるはず。
+
+```
+/status
+```
+
+`/ide` コマンドで接続中のエディタも確認できる。
+
+
+## 0-3. VSCode 拡張機能を導入
+VSCode の Extensions から `Claude Code for VS Code` をインストール。これで
+- 右ペインで Claude パネルが表示
+- ファイル単位で編集可能
+- diff を確認しながら安全に適用
+が可能になる。
+
+
+## 0-4.　CLAUDE.md を作成（超重要）
+プロジェクトルートに `frontend/app/CLAUDE.md` を作成し、ここに「このプロジェクトの前提」を書く。
+
+
+
+---
+
+<div id="create_project"></div>
+
+# 1. プロジェクト作成
+
+## 1-1. flutter プロジェクトの作成
+
+#### 1.　プロジェクト作成コマンド実行
+ターミナルにてプロジェクトフォルダを作成したいディレクトリへ移動し、下記コマンドを実行して flutter プロジェクトを作成する。
 
 ```bash
 flutter create ⚪︎⚪︎⚪︎⚪︎⚪︎　# ⚪︎⚪︎⚪︎⚪︎はプロジェクトフォルダ名
@@ -48,15 +250,23 @@ flutter create ⚪︎⚪︎⚪︎⚪︎⚪︎　# ⚪︎⚪︎⚪︎⚪︎はプ
 
 これでプロジェクト作成OK。
 
-#### 3. VSCode で、手順２で作成したプロジェクトフォルダを開く
+#### ２. VSCode で、手順1で作成したプロジェクトフォルダを開く
 
-#### 4. VSCode 上のターミナルにて下記コマンドを実行して、使いたい flutter のバージョンを指定する。
+#### 3. VSCode 上のターミナルにて下記コマンドを実行して、使いたい flutter のバージョンを指定する。
 
 ```bash
-fvn use X.XX.X # X.XX.Xは使いたいバージョン
+fvm list # マシンにインストールされている flutter のバージョン一覧を表示
+
+fvm releases # 現在リリースされている flutter のバージョン一覧を表示
+
+# 新しいバージョンを新たにインストールしたい場合
+fvm install X.XX.X
+
+# 当プロジェクトで使いたいバージョンを指定
+fvm use X.XX.X # X.XX.Xは使いたいバージョン
 
 # 例
-fvn use 3.35.3
+fvm use 3.44.9
 ```
 
 コマンドを実行すると以下のように聞かれるので `y` と入力する。  
@@ -83,49 +293,71 @@ VSCode 上の flutter 拡張機能設定のため、プロジェクトフォル�
 
 ```python
 {
-  "dart.flutterSdkPath": ".fvm/versions/3.36.0",
+  "dart.flutterSdkPath": ".fvm/versions/3.44.9",
   "[dart]": {
     "editor.formatOnSave": false
   }
 }
 ```
 
+依存関係を依存関係を取得
+
+```bash
+flutter pub get
+```
+
 #### 6. プロジェクトに必須なパッケージ類(Riverpod関連)を導入
 VSCode ターミナルにて、下記コマンドを実行して[Riverpod(後述)](#about_riverpod)関連のパッケージを導入する。  
+依存関係は flutter pub add コマンドが解決してくれる。
 
 ```sh
-flutter pub add flutter_riverpod riverpod_annotation
-flutter pub add --dev riverpod_generator build_runner custom_lint riverpod_lint
+flutter pub add flutter_riverpod riverpod_annotation dev:riverpod_generator dev:build_runner dev:riverpod_lint
 ```
 
 上記を実行すると、プロジェクトフォルダ直下にある `pubspec.yaml` に以下のように追記される。  
-各バージョンは、導入した時の最新バージョンになるはず。
+各バージョンは、導入した時の最新バージョンになるはず。  
+（2026年8月時点の手元環境と一致している最新版はこちら↓）
 
 ```python
 dependencies:
+  flutter:
+    sdk: flutter
   #【略】
-  flutter_riverpod: ^3.0.0　　　# Riverpod の基本機能を提供するパッケージ
-  riverpod_annotation: ^3.0.0  # Provier のコード生成のためのアノテーションを提供
-  #【略】
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^3.3.2　　　# Riverpod の基本機能を提供するパッケージ
+  riverpod_annotation: ^4.0.3  # Provier のコード生成のためのアノテーションを提供
+
 dev_dependencies:
-  riverpod_generator: ^3.0.0   # Provier のコードを生成するためのパッケージ
-  build_runner: ^2.7.1         # flutter gen のコード生成パッケージ
-  custom_lint: ^0.8.0          # riverpod_lint 利用のために必要
-  riverpod_lint: ^3.0.0        # Riverpod コード特有の問題を静的解析＆自動修正するパッケージ
+  flutter_test:
+    sdk: flutter
+  #【略】
+  flutter_lints: ^5.0.0        # riverpod_lint 利用のために必要
+  build_runner: ^2.15.1        # flutter gen のコード生成パッケージ
+  riverpod_generator: ^4.0.4   # Provier のコードを生成するためのパッケージ
+  riverpod_lint: ^3.1.4        # Riverpod コード特有の問題を静的解析＆自動修正するパッケージ
 ```
 
 #### 7. riverpod_lint を有効にする
 
-riverpod_lint を有効にするには、analysis_options.yaml に以下を追記する必要がある追記する必要がある。
+> **⚠️ 2026年8月更新：有効化方法が変わっている**  
+> riverpod_lint は `analysis_server_plugin` ベースの新方式に移行済み。  
+> 以前のように `custom_lint` パッケージを追加したり `analyzer: plugins: - custom_lint` と書く必要はもうない。  
+> `analysis_options.yaml` に以下を追記するだけでOK（末尾の値はインストールした riverpod_lint のバージョンに合わせる。手元環境なら 3.1.4）。
 
-```python
-analyzer:
-  plugins:
-    - custom_lint
+```yaml
+plugins:
+  riverpod_lint: 3.1.4
+```
+
+（旧方式。今の riverpod_lint 3.x では不要になったので削除してOK）
+```yaml
+# analyzer:
+#   plugins:
+#     - custom_lint
 ```
 
 #### 8. main.dart で　ProviderScope　ウィジェットをウィジェットツリーの最上位に配置
-lob/main.dart の main() メソッドを以下のように書き換えて、roviderScope　ウィジェットをウィジェットツリーの最上位に配置する。
+lib/main.dart の main() メソッドを以下のように書き換えて、ProviderScope　ウィジェットをウィジェットツリーの最上位に配置する。
 
 ```dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -348,7 +580,7 @@ nullable-getter: false
 ```json
 {
     "@@locale": "ja",
-    "startScreenTitle": "Edit Snapアプリ",
+    "startScreenTitle": "サンプルアプリ",
     "@startScreenTitle": {
         "description": "アプリのタイトル"
     },
@@ -386,84 +618,84 @@ flutter gen-l10n
 コードジェネレイターを実行したら、生成されたメッセージを以下の例(main.dart)のようにコードに反映させる。
 
 ```dart
-import 'package:edit_snap/l10n/app_localizations.dart'; // 生成されたコードをインポート
+import 'package:プロジェクト名/l10n/app_localizations.dart'; // 生成されたコードをインポート
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       localizationsDelegates: L10n.localizationsDelegates, // 対応言語の(今回は日本語のみ)の翻訳データを渡す
       supportedLocales: L10n.supportedLocales,             // 対応言語のリストを渡す
-      title: 'Edit Snap',
+      title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: StartScreen(),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-// StartScreen クラス
-class StartScreen extends StatelessWidget {
-  const StartScreen({super.key});
+class CounterNitifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void increment() {
+    state = state + 1;
+  }
+}
+
+final counterNotifierProvider = NotifierProvider<CounterNitifier, int>(() {
+  return CounterNitifier();
+});
+
+class MyHomePage extends ConsumerWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = L10n.of(context); // L10nクラスのインスタンスを取得
+    final counter = ref.watch(counterNotifierProvider);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(l10n.startScreenTitle), // 対応するメッセージを生成コードから取得
+        title: Text(l10n.startScreenTitle),  // L10nクラスのプロパティを使用してタイトルを表示
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Text('You have pushed the button this many times:'),
             Text(
-              l10n.helloWorldOn(DateTime.now()), // 対応するメッセージを生成コードから取得（Text に const つけないこと！）
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            ElevatedButton(
-              child: Text(l10n.start), // 対応するメッセージを生成コードから取得（Text に const つけないこと！）
-              onPressed: () {
-                // ボタンが押されたときの処理
-              },
+              '$counter',
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          ref.read(counterNotifierProvider.notifier).increment();
+        },
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
-```
-
-#### App Store での表示言語を設定する
-iOS ネイティブの対応言語を設定する。  
-これは App Store に表示されるアプリの対応言語に影響する。  
-`ios/Runner/Info.plist` を開き、`CFBundleLocalizations` キーの下に `ja` を追加する。
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <!-- 省略 -->
-    <key>CFBundleLocalizations</key>
-    <array>
-        <string>ja</string>
-    </array>
-    <!-- 省略 -->
-</dict>
-</plist>
 ```
 
 これで、ローカライズ作業完了！  
@@ -515,7 +747,7 @@ Android Studio がインストールされていない場合、下記手順で�
 Emulator の表示がなければ、Android Emulator が作成されていないので、下記手順で作成する。
 3. Device Manager画面にて「Create virtual device...」ボタンをクリックして、Android Emulator作成ウインドウを表示する。
 4. Android Emulator作成ウインドウにて、Emulatorの画面解像度や仮想ディスプレイサイズを選択し「Next」ボタンクリック。
-5. Emulator の API レベルを選択。テキストでは API Level34 を選択だって・・・  
+5. Emulator の API レベルを選択。**2026年8月時点では API Level 36 が推奨（最新）**。  
 ※ Flutter がサポートしている API レベルは[公式ドキュメントの「Supported development platforms」](https://docs.flutter.dev/reference/supported-platforms)で確認できる。
 6. 選択した API レベルのシステムイメージをダウンロードして、選択し「Next」ボタンクリック。
 7. 最後に Emulator の名前やその他の設定を行う画面に遷移するので「Finish」クリック。これで Android Emulator の作成完了！
